@@ -1,4 +1,4 @@
-import { GlitchPass } from 'postprocessing'
+import { BloomPass, GlitchPass } from 'postprocessing'
 
 export default {
   debug: {
@@ -9,10 +9,21 @@ export default {
     active: true,
     passes: [
       {
-        name: 'glitchPass',
+        name: 'BloomPass',
         active: true,
         constructor: () => {
-          return new GlitchPass({})
+          return new BloomPass( {
+            resolutionScale: 0.5,
+            intensity: 2.0,
+            distinction: 1.0
+          } )
+        }
+      },
+      {
+        name: 'GlitchPass',
+        active: false,
+        constructor: () => {
+          return new GlitchPass( {} )
         }
       }
     ]

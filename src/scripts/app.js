@@ -11,11 +11,11 @@ import Cube from './meshes/cube'
 import Config from 'Config'
 
 class App {
-  constructor (container) {
-    this.scene = new SceneObj({
+  constructor ( container ) {
+    this.scene = new SceneObj( {
       container: container,
       ...Config
-    })
+    } )
 
     this.container = container
 
@@ -29,33 +29,33 @@ class App {
 
   initMeshes () {
     this.cube = new Cube()
-    this.scene.add(this.cube)
+    this.scene.add( this.cube )
   }
 
   initLights () {
-    this.ambientLight = new AmbientLight(0x111111)
-    this.scene.add(this.ambientLight)
+    this.ambientLight = new AmbientLight( 0x111111 )
+    this.scene.add( this.ambientLight )
   }
 
   addListeners () {
-    window.addEventListener('resize', this.onResize.bind(this))
-    TweenMax.ticker.addEventListener('tick', this.update.bind(this))
+    window.addEventListener( 'resize', this.onResize )
+    TweenMax.ticker.addEventListener( 'tick', this.update )
   }
 
-  update () {
+  update = () => {
     this.DELTA_TIME = Date.now() - this.LAST_TIME
     this.LAST_TIME = Date.now()
 
-    this.cube.update()
+    this.cube.update( this.DELTA_TIME )
 
     this.scene.render()
   }
 
-  onResize (evt) {
+  onResize = () => {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    this.scene.resize(this.width, this.height)
+    this.scene.resize( this.width, this.height )
   }
 }
 

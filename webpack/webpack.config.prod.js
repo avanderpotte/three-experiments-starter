@@ -1,41 +1,44 @@
-const webpack = require('webpack');
-const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
+const webpack = require( 'webpack' )
+const path = require( 'path' )
+const HtmlWebpackPlugin = require( 'html-webpack-plugin' )
+const ExtractTextPlugin = require( 'extract-text-webpack-plugin' )
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' )
+const CleanWebpackPlugin = require( 'clean-webpack-plugin' )
+const OptimizeCssAssetsPlugin = require( 'optimize-css-assets-webpack-plugin' )
+const autoprefixer = require( 'autoprefixer' )
 
 module.exports = {
-  context: path.resolve(__dirname, '../src/scripts'),
+  context: path.resolve( __dirname, '..' ),
   entry: {
-    app: './index.js',
+    app: './src/scripts/index.js'
   },
   output: {
-    filename: 'app.bundle.js',
-    path: path.resolve(__dirname, '../dist'),
-    publicPath: '/static/'
+    filename: 'app.min.js',
+    path: path.resolve( __dirname, '..', 'dist' )
   },
   module: {
     rules: [
-      // linters
-      {
-        test: /\.json$/,
-        loader: 'json'
-      },
       {
         test: /\.js$/,
-        use: [{
-          loader: 'babel-loader'
-        }]
+        loader: 'babel-loader'
       },
       {
         test: /\.styl$/,
-        /*use: ExtractTextPlugin.extract({
-          use: 'css-loader!stylus-loader'
-        })*/
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'stylus-loader']
-        })
+        use: ExtractTextPlugin.extract( {
+          fallbackLoader: 'style-loader',
+          use: [
+            'css-loader',
+            {
+              loader: 'postcss-loader',
+              options: {
+                plugins: () => [
+                  autoprefixer( { browsers: [ 'last 2 versions' ] } )
+                ]
+              }
+            },
+            'stylus-loader'
+          ]
+        } )
       },
       {
         test: /\.(png|svg|jpg)$/,
@@ -56,30 +59,39 @@ module.exports = {
     ]
   },
   resolve: {
+    modules: [
+      path.resolve( __dirname, '..', 'src/scripts' ),
+      'node_modules'
+    ],
+    extensions: [ '.js' ],
     alias: {
-      Config: path.resolve(__dirname, '../src/scripts/config/'),
-      Core: path.resolve(__dirname, '../src/scripts/core/'),
-      Utils: path.resolve(__dirname, '../src/scripts/utils/')
+      Config: path.resolve( __dirname, '../src/scripts/config/' ),
+      Core: path.resolve( __dirname, '../src/scripts/core/' ),
+      Utils: path.resolve( __dirname, '../src/scripts/utils/' )
     }
   },
   plugins: [
-    new ExtractTextPlugin({
-      filename: 'app.bundle.css',
-      allChunks: true
-    }),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
+    new HtmlWebpackPlugin( {
+      template: 'src/index.tpl.ejs',
+      inject: 'body',
+      filename: 'index.html',
+      hash: true,
+      environment: process.env.NODE_ENV
+    } ),
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.DefinePlugin( {
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    } ),
+    new CopyWebpackPlugin( [ { from: 'static' } ], { ignore: [ '.DS_Store', '.keep' ] } ),
+    new webpack.optimize.UglifyJsPlugin( {
+      compress: {
+        warnings: false,
+        drop_console: true,
+        pure_funcs: [ 'console.log' ]
       }
-    }),
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, '../static/images/'), 
-        to: path.resolve(__dirname, '../dist/images/') 
-      }
-    ]
-    ,{
-      debug: true 
-    })
+    } ),
+    new ExtractTextPlugin( { filename: 'app.min.css', allChunks: true } ),
+    new OptimizeCssAssetsPlugin(),
+    new CleanWebpackPlugin( [ 'dist' ], { root: path.join( __dirname, '..' ) } )
   ]
-};
+}

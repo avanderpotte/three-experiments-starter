@@ -1,14 +1,14 @@
-# three-exp-starter
-3D Experiment starter to test cool things fast :rocket:
+# three-experiments-starter
+3D Experiments starter to test cool things fast :rocket:
 
 ### install : 
-__npm install__
+__yarn__
 -> install dependencies
 ### dev :
-__npm run dev__
+__yarn run dev__
 -> watch files for dev
 ### prod :
-__npm run build__
+__yarn run build__
 -> build in dist/ directory
 
 ## Technologies
@@ -23,4 +23,4 @@ __npm run build__
 * Orbit controls
 
 
-By [Yannis Jonckheere](https://twitter.com/JSinnay) & [Antonin Riviere](https://twitter.com/AntoninRiviere)
+By [Adrien Vanderpotte](https://twitter.com/avanderpotte) & [Antonin Riviere](https://twitter.com/AntoninRiviere)

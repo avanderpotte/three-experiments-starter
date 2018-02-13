@@ -1,52 +1,59 @@
-const webpack = require('webpack');
-const path = require('path');
-const eslintFriendlyFormatter = require('eslint-friendly-formatter');
+const path = require( 'path' )
+const eslintFriendlyFormatter = require( 'eslint-friendly-formatter' )
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' )
+const HtmlWebpackPlugin = require( 'html-webpack-plugin' )
+const autoprefixer = require( 'autoprefixer' )
 
 module.exports = {
-  context: path.resolve(__dirname, '../src/scripts'),
+  cache: true,
+  context: path.resolve( __dirname, '..' ),
+  devtool: 'eval',
   entry: {
-    app: './index.js',
+    app: './src/scripts/index.js'
   },
   output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, '../dist'),
-    publicPath: '/static/'
+    path: __dirname,
+    publicPath: '/',
+    filename: 'app.bundle.js',
+    pathinfo: true
   },
   module: {
     rules: [
       {
-        test: /\.json$/,
-        loader: 'json'
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         enforce: 'pre',
-        use: [{
+        use: [ {
           loader: 'eslint-loader',
           options: {
             parser: 'babel-eslint',
-            formatter: eslintFriendlyFormatter
+            formatter: eslintFriendlyFormatter,
+            cacheDirectory: true
           }
-        }]
+        } ]
       },
       {
         test: /\.js$/,
-        use: [{
+        use: [ {
           loader: 'babel-loader'
-        }],
-        exclude: [/node_modules/]
+        } ],
+        exclude: [ /node_modules/ ]
       },
       {
         test: /\.styl$/,
         use: [
-          'style-loader', 
+          'style-loader',
           'css-loader',
           {
-            loader: 'stylus-loader',
+            loader: 'postcss-loader',
             options: {
+              plugins: () => [
+                autoprefixer( { browsers: [ 'last 2 versions' ] } )
+              ]
             }
-          }],
+          },
+          'stylus-loader'
+        ]
       },
       {
         test: /\.(png|svg|jpg)$/,
@@ -64,22 +71,36 @@ module.exports = {
           'glslify'
         ]
       }
-    ],
+    ]
   },
   resolve: {
+    modules: [
+      path.resolve( __dirname, '..', 'src/scripts' ),
+      'node_modules'
+    ],
+    extensions: [ '.js' ],
     alias: {
-      Config: path.resolve(__dirname, '../src/scripts/config/'),
-      Core: path.resolve(__dirname, '../src/scripts/core/'),
-      Utils: path.resolve(__dirname, '../src/scripts/utils/'),
+      Config: path.resolve( __dirname, '../src/scripts/config/' ),
+      Core: path.resolve( __dirname, '../src/scripts/core/' ),
+      Utils: path.resolve( __dirname, '../src/scripts/utils/' )
     }
-  }
-  /*plugins: [
-    new ExtractTextPlugin({
-      filename: '[name].bundle.css',
-      allChunks: true,
-    }),
-  ],*/
-  /*devServer: {
-    contentBase: path.resolve(__dirname),
-  },*/
-};
+  },
+  devServer: {
+    contentBase: path.resolve( __dirname, 'static' ),
+    compress: false,
+    port: 3000,
+    stats: 'verbose',
+    historyApiFallback: true,
+    host: '0.0.0.0'
+  },
+  plugins: [
+    new HtmlWebpackPlugin( {
+      template: 'src/index.tpl.ejs',
+      inject: 'body',
+      filename: 'index.html',
+      hash: true,
+      environment: process.env.NODE_ENV
+    } ),
+    new CopyWebpackPlugin( [ { from: 'static' } ], { ignore: [ '.DS_Store', '.keep' ] } )
+  ]
+}
