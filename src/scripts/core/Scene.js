@@ -3,7 +3,6 @@ import Stats from 'stats-js'
 import OrbitControls from 'orbit-controls'
 import { EffectComposer, RenderPass } from 'postprocessing'
 import GUI from 'Utils/GUI'
-import { find, last } from 'lodash'
 
 class SceneObj extends Scene {
   constructor ( options ) {
@@ -85,33 +84,16 @@ class SceneObj extends Scene {
     this.composer.addPass( renderPass )
 
     let passObject
-    this.passes = []
     GUI.panel.addGroup( { label: 'Postprocessing' } )
 
     this.options.postProcessing.passes.forEach( pass => {
-      if ( pass.active ) {
-        passObject = pass.constructor()
-        this.passes.push( passObject )
-        this.composer.addPass( passObject )
-      }
-
-      GUI.panel.addCheckbox( pass, 'active', { label: pass.name, onChange: () => {
-        this.togglePass( pass )
-      } } )
+      passObject = pass.constructor()
+      if ( pass.active ) this.composer.addPass( passObject )
+      if ( pass.gui ) passObject.initGUI()
     } )
     passObject.renderToScreen = true
   }
-
-  togglePass ( pass ) {
-    let currentPass = find( this.passes, { name: pass.name } )
-    if ( currentPass === undefined ) currentPass = pass.constructor()
-    last( this.composer.passes ).renderToScreen = false
-    if ( pass.active ) this.composer.addPass( currentPass )
-    else this.composer.removePass( currentPass )
-    last( this.composer.passes ).renderToScreen = true
-  }
-
-  render () {
+  render ( dt ) {
     if ( this.options.debug.orbitControls ) {
       this.controls.update()
       this.camera.position.fromArray( this.controls.position )
@@ -120,7 +102,7 @@ class SceneObj extends Scene {
     }
 
     if ( this.options.postProcessing.active ) {
-      this.composer.render()
+      this.composer.render( dt )
     } else {
       this.renderer.render( this, this.camera )
     }

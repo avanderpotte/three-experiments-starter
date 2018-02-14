@@ -48,7 +48,7 @@ class App {
 
     this.cube.update( this.DELTA_TIME )
 
-    this.scene.render()
+    this.scene.render( this.DELTA_TIME )
   }
 
   onResize = () => {

@@ -1,5 +1,5 @@
 import { BloomPass, GlitchPass } from 'postprocessing'
-
+import WavesPass from '../passes/Waves'
 export default {
   debug: {
     stats: true,
@@ -11,6 +11,7 @@ export default {
       {
         name: 'BloomPass',
         active: true,
+        gui: false,
         constructor: () => {
           return new BloomPass( {
             resolutionScale: 0.5,
@@ -22,8 +23,17 @@ export default {
       {
         name: 'GlitchPass',
         active: false,
+        gui: false,
         constructor: () => {
           return new GlitchPass( {} )
+        }
+      },
+      {
+        name: 'WavesPass',
+        active: true,
+        gui: true,
+        constructor: () => {
+          return new WavesPass( {} )
         }
       }
     ]
