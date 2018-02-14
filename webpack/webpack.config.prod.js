@@ -5,6 +5,7 @@ const ExtractTextPlugin = require( 'extract-text-webpack-plugin' )
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' )
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' )
 const OptimizeCssAssetsPlugin = require( 'optimize-css-assets-webpack-plugin' )
+const UglifyJSPlugin = require( 'uglifyjs-webpack-plugin' )
 const autoprefixer = require( 'autoprefixer' )
 
 module.exports = {
@@ -20,12 +21,13 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
+        exclude: /node_modules/,
         loader: 'babel-loader'
       },
       {
         test: /\.styl$/,
         use: ExtractTextPlugin.extract( {
-          fallbackLoader: 'style-loader',
+          fallback: 'style-loader',
           use: [
             'css-loader',
             {
@@ -83,11 +85,13 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify( 'production' )
     } ),
     new CopyWebpackPlugin( [ { from: 'static' } ], { ignore: [ '.DS_Store', '.keep' ] } ),
-    new webpack.optimize.UglifyJsPlugin( {
-      compress: {
-        warnings: false,
-        drop_console: true,
-        pure_funcs: [ 'console.log' ]
+    new UglifyJSPlugin( {
+      uglifyOptions: {
+        compress: {
+          warnings: false,
+          drop_console: true,
+          pure_funcs: [ 'console.log' ]
+        }
       }
     } ),
     new ExtractTextPlugin( { filename: 'app.min.css', allChunks: true } ),
