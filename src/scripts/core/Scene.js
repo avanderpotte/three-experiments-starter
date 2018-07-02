@@ -12,10 +12,12 @@ class SceneObj extends Scene {
         fov: 45,
         near: 1,
         far: 1000,
-        position: new Vector3( 0, 0, 10 )
+        position: new Vector3( 0, 0, 10 ),
+        rotation: new Vector3( 0, 0, 0 )
       },
       renderer: {
-        antialias: false,
+        alpha: true,
+        antialias: true,
         pixelRatio: Math.max( 1, Math.min( window.devicePixelRatio, 2 ) )
       },
       debug: {
@@ -34,12 +36,13 @@ class SceneObj extends Scene {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    this.renderer = new WebGLRenderer( this.width, this.height, this.options.renderer )
+    this.renderer = new WebGLRenderer( this.options.renderer )
     this.renderer.setSize( this.width, this.height )
+    this.renderer.setClearAlpha( 0 )
 
     this.container.appendChild( this.renderer.domElement )
 
-    this.camera = new PerspectiveCamera( this.options.fov, this.width / this.height, this.options.near, this.options.far )
+    this.camera = new PerspectiveCamera( this.options.camera.fov, this.width / this.height, this.options.camera.near, this.options.camera.far )
     this.camera.position.copy( this.options.camera.position )
 
     if ( this.options.postProcessing ) {
